@@ -63,7 +63,8 @@
     h1,
     h2,
     .brand,
-    .count {
+    .count,
+    .profile-name {
       font-family: "DNFBitBit", "Segoe UI", system-ui, sans-serif;
       font-weight: 400;
       letter-spacing: 0;
@@ -87,8 +88,32 @@
       min-height: 64px;
       display: flex;
       align-items: center;
-      justify-content: flex-end;
+      justify-content: space-between;
       gap: 14px;
+    }
+
+    .profile-mini {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      min-width: 0;
+    }
+
+    .profile-mini strong {
+      white-space: nowrap;
+    }
+
+    .profile-change {
+      min-height: 32px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 5px 10px;
+      background: rgba(255, 255, 255, .9);
+      color: var(--muted);
+      cursor: pointer;
+      font: inherit;
+      font-size: .8rem;
+      font-weight: 900;
     }
 
     .nav {
@@ -492,6 +517,160 @@
       margin-top: 8px;
     }
 
+    .profile-gate {
+      position: fixed;
+      inset: 0;
+      z-index: 80;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 18px;
+      background:
+        linear-gradient(180deg, rgba(8, 12, 30, .36), rgba(8, 12, 30, .64)),
+        url("assets/fantasy-astronomy-bg.png") center / cover no-repeat;
+    }
+
+    .profile-gate[hidden] {
+      display: none;
+    }
+
+    .profile-card {
+      width: min(920px, 100%);
+      border-radius: var(--radius);
+      border: 2px solid rgba(255, 255, 255, .78);
+      background: rgba(255, 255, 255, .92);
+      box-shadow: 8px 8px 0 rgba(16, 24, 40, .25), 0 30px 80px rgba(16, 24, 40, .28);
+      backdrop-filter: blur(12px);
+      padding: 22px;
+    }
+
+    .profile-card h2 {
+      margin: 0;
+      font-size: clamp(1.8rem, 5vw, 3.6rem);
+      color: #10204c;
+    }
+
+    .profile-card p {
+      margin: 8px 0 0;
+      color: var(--muted);
+      font-weight: 700;
+    }
+
+    .profile-options {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 14px;
+      margin-top: 18px;
+    }
+
+    .profile-option {
+      display: grid;
+      gap: 12px;
+      justify-items: center;
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      background: #fff;
+      padding: 16px;
+      cursor: pointer;
+      font: inherit;
+      color: var(--ink);
+      box-shadow: 4px 4px 0 rgba(16, 24, 40, .12);
+    }
+
+    .profile-option[aria-pressed="true"] {
+      border-color: var(--blue);
+      background: var(--soft-blue);
+    }
+
+    .avatar {
+      position: relative;
+      width: 104px;
+      height: 126px;
+      border-radius: 42px 42px 18px 18px;
+      background: linear-gradient(180deg, #ffd8ae 0 32%, #3d7cff 32% 100%);
+      box-shadow: inset 0 -12px 0 rgba(16, 24, 40, .12);
+    }
+
+    .avatar::before {
+      content: "";
+      position: absolute;
+      left: 20px;
+      top: 12px;
+      width: 64px;
+      height: 44px;
+      border-radius: 50% 50% 45% 45%;
+      background: #3b2f4f;
+    }
+
+    .avatar::after {
+      content: "";
+      position: absolute;
+      left: 33px;
+      top: 46px;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: #1f2937;
+      box-shadow: 28px 0 0 #1f2937;
+    }
+
+    .avatar.coco {
+      background: linear-gradient(180deg, #ffd8ae 0 32%, #f472b6 32% 100%);
+    }
+
+    .avatar.coco::before {
+      left: 14px;
+      width: 76px;
+      height: 54px;
+      border-radius: 46% 46% 55% 55%;
+      background: #5b2f77;
+    }
+
+    .profile-name {
+      font-size: 1.55rem;
+    }
+
+    .password-row {
+      display: grid;
+      gap: 10px;
+      margin-top: 18px;
+    }
+
+    .password-row label {
+      color: var(--muted);
+      font-weight: 900;
+    }
+
+    .password-row input {
+      width: 100%;
+      min-height: 46px;
+      border: 2px solid var(--line);
+      border-radius: var(--radius);
+      padding: 10px 12px;
+      font: inherit;
+      font-size: 1rem;
+      background: #fff;
+    }
+
+    .enter-button {
+      min-height: 44px;
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 18px;
+      background: var(--ink);
+      color: #fff;
+      cursor: pointer;
+      font: inherit;
+      font-weight: 950;
+    }
+
+    .profile-error {
+      min-height: 22px;
+      margin: 8px 0 0;
+      color: #e11d48;
+      font-weight: 850;
+    }
+
     @media (min-width: 760px) {
       .masthead { grid-template-columns: minmax(0, 1fr); }
       .intro-grid { grid-template-columns: minmax(0, 1fr); }
@@ -505,7 +684,7 @@
     @media (max-width: 560px) {
       .wrap { width: min(100% - 24px, 1120px); }
       .status { display: none; }
-      .topbar-inner { justify-content: center; }
+      .topbar-inner { justify-content: center; flex-wrap: wrap; }
       main { padding-top: 28px; }
       .section-head { align-items: start; flex-direction: column; }
       .readmore,
@@ -514,11 +693,46 @@
       .mini-stats { grid-template-columns: 1fr; }
     }
 
+    @media (min-width: 680px) {
+      .profile-options { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .password-row { grid-template-columns: 1fr auto; align-items: end; }
+      .password-row label { grid-column: 1 / -1; }
+    }
+
   </style>
 </head>
 <body>
+  <section class="profile-gate" id="profile-gate" aria-label="프로필 선택">
+    <div class="profile-card">
+      <h2>캐릭터 선택</h2>
+      <p>프로필마다 보관함이 따로 저장됩니다.</p>
+
+      <div class="profile-options">
+        <button type="button" class="profile-option" data-profile="mongmong" aria-pressed="true">
+          <span class="avatar" aria-hidden="true"></span>
+          <span class="profile-name">몽몽</span>
+        </button>
+        <button type="button" class="profile-option" data-profile="coco" aria-pressed="false">
+          <span class="avatar coco" aria-hidden="true"></span>
+          <span class="profile-name">코코</span>
+        </button>
+      </div>
+
+      <div class="password-row">
+        <label for="profile-password">비밀번호</label>
+        <input id="profile-password" type="password" inputmode="numeric" autocomplete="current-password" placeholder="비밀번호 입력">
+        <button type="button" class="enter-button" id="profile-enter">입장하기</button>
+      </div>
+      <p class="profile-error" id="profile-error" role="alert"></p>
+    </div>
+  </section>
+
   <nav class="topbar">
     <div class="wrap topbar-inner">
+      <div class="profile-mini">
+        <strong id="active-profile-name">프로필 선택 필요</strong>
+        <button type="button" class="profile-change" id="profile-change">변경</button>
+      </div>
       <div class="nav" aria-label="주요 메뉴">
         <button type="button" class="tab-button" data-view="interest" aria-selected="true">관심</button>
         <button type="button" class="tab-button" data-view="latest" aria-selected="false">최신</button>
@@ -806,6 +1020,20 @@
     });
 
     const tabButtons = document.querySelectorAll(".tab-button");
+    const profileGate = document.querySelector("#profile-gate");
+    const profileOptions = document.querySelectorAll(".profile-option");
+    const profilePassword = document.querySelector("#profile-password");
+    const profileEnter = document.querySelector("#profile-enter");
+    const profileError = document.querySelector("#profile-error");
+    const activeProfileName = document.querySelector("#active-profile-name");
+    const profileChange = document.querySelector("#profile-change");
+    const profiles = {
+      mongmong: { label: "몽몽", password: "0123" },
+      coco: { label: "코코", password: "1004" }
+    };
+    let selectedProfile = "mongmong";
+    let activeProfile = localStorage.getItem("mongmongActiveProfile") || "";
+
     const sections = {
       interest: document.querySelector("#interest"),
       latest: document.querySelector("#latest"),
@@ -823,12 +1051,78 @@
         }
       ])
     );
-    const likedKey = "mongmongLikedItems";
-    let likedItems = new Set(JSON.parse(localStorage.getItem(likedKey) || "[]"));
+    let likedItems = new Set();
+
+    function likedKey() {
+      return `mongmongLikedItems:${activeProfile}`;
+    }
+
+    function loadLikedItems() {
+      likedItems = activeProfile ? new Set(JSON.parse(localStorage.getItem(likedKey()) || "[]")) : new Set();
+    }
 
     function saveLikedItems() {
-      localStorage.setItem(likedKey, JSON.stringify(Array.from(likedItems)));
+      if (!activeProfile) return;
+      localStorage.setItem(likedKey(), JSON.stringify(Array.from(likedItems)));
     }
+
+    function showProfileGate() {
+      profileGate.hidden = false;
+      profilePassword.value = "";
+      profileError.textContent = "";
+      profilePassword.focus();
+    }
+
+    function hideProfileGate() {
+      profileGate.hidden = true;
+    }
+
+    function setSelectedProfile(profile) {
+      selectedProfile = profile;
+      profileOptions.forEach((button) => {
+        button.setAttribute("aria-pressed", String(button.dataset.profile === profile));
+      });
+      profilePassword.value = "";
+      profileError.textContent = "";
+      profilePassword.focus();
+    }
+
+    function setActiveProfile(profile) {
+      activeProfile = profile;
+      localStorage.setItem("mongmongActiveProfile", profile);
+      activeProfileName.textContent = `${profiles[profile].label} 프로필`;
+      loadLikedItems();
+      syncArchive();
+      setView("interest");
+      hideProfileGate();
+    }
+
+    function enterProfile() {
+      const profile = profiles[selectedProfile];
+      if (profilePassword.value === profile.password) {
+        setActiveProfile(selectedProfile);
+        return;
+      }
+      profileError.textContent = "비밀번호가 맞지 않습니다.";
+      profilePassword.select();
+    }
+
+    profileOptions.forEach((button) => {
+      button.addEventListener("click", () => setSelectedProfile(button.dataset.profile));
+    });
+
+    profileEnter.addEventListener("click", enterProfile);
+    profilePassword.addEventListener("keydown", (event) => {
+      if (event.key === "Enter") enterProfile();
+    });
+
+    profileChange.addEventListener("click", () => {
+      localStorage.removeItem("mongmongActiveProfile");
+      activeProfile = "";
+      likedItems = new Set();
+      syncArchive();
+      showProfileGate();
+    });
 
     function setLikeButtonState(item, liked) {
       const button = item.querySelector(".like-button");
@@ -888,7 +1182,16 @@
       button.addEventListener("click", () => setView(button.dataset.view));
     });
 
-    syncArchive();
+    if (activeProfile && profiles[activeProfile]) {
+      activeProfileName.textContent = `${profiles[activeProfile].label} 프로필`;
+      loadLikedItems();
+      syncArchive();
+      hideProfileGate();
+    } else {
+      activeProfileName.textContent = "프로필 선택 필요";
+      syncArchive();
+      showProfileGate();
+    }
 
     if ("serviceWorker" in navigator) {
       window.addEventListener("load", () => {
