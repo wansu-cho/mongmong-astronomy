@@ -1,4 +1,4 @@
-const CACHE_NAME = "mongmong-astronomy-v20";
+const CACHE_NAME = "mongmong-astronomy-v23";
 const ASSETS = [
   "./",
   "./index.html",
@@ -9,7 +9,11 @@ const ASSETS = [
   "./assets/icon-192.png",
   "./assets/icon-512.png",
   "./assets/profile-mongmong.png",
-  "./assets/profile-coco.png"
+  "./assets/profile-coco.png",
+  "./assets/folder-empty.png",
+  "./assets/folder-low.png",
+  "./assets/folder-mid.png",
+  "./assets/folder-full.png"
 ];
 
 self.addEventListener("install", (event) => {

@@ -443,28 +443,62 @@
     }
 
     .archive-months {
-      display: grid;
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-      gap: 8px;
+      display: flex;
+      gap: 6px;
+      overflow-x: auto;
       margin-bottom: 12px;
+      padding: 4px 2px 10px;
+      scrollbar-width: thin;
     }
 
     .month-tab {
-      min-height: 38px;
+      flex: 0 0 72px;
+      min-height: 74px;
       border: 1px solid var(--line);
-      border-radius: 999px;
+      border-radius: var(--radius);
       background: rgba(255, 255, 255, .92);
-      color: var(--muted);
+      color: #10204c;
       cursor: pointer;
-      font: inherit;
-      font-size: .86rem;
+      font-family: "DNFBitBit", "Segoe UI", system-ui, sans-serif;
+      font-size: .98rem;
       font-weight: 950;
+      display: grid;
+      justify-items: center;
+      align-content: center;
+      gap: 2px;
+      padding: 5px 4px 4px;
+      box-shadow: 3px 3px 0 rgba(16, 24, 40, .10);
     }
 
     .month-tab[aria-selected="true"] {
-      background: var(--ink);
-      color: #fff;
-      border-color: var(--ink);
+      background: var(--soft-blue);
+      color: #0b3a8f;
+      border-color: rgba(36, 94, 232, .58);
+      transform: translateY(-2px);
+      box-shadow: 4px 5px 0 rgba(36, 94, 232, .18);
+    }
+
+    .month-tab.has-files {
+      background: #fff9df;
+      border-color: rgba(245, 165, 36, .45);
+    }
+
+    .month-tab.has-files[aria-selected="true"] {
+      background: #fff3bf;
+      border-color: rgba(245, 165, 36, .72);
+    }
+
+    .folder-icon {
+      width: 46px;
+      height: 40px;
+      object-fit: contain;
+      display: block;
+      pointer-events: none;
+    }
+
+    .month-label {
+      line-height: 1;
+      pointer-events: none;
     }
 
     .modal {
@@ -689,7 +723,8 @@
       .detail-button { width: 100%; justify-content: center; }
       .like-button { width: 100%; }
       .mini-stats { grid-template-columns: 1fr; }
-      .archive-months { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .month-tab { flex-basis: 64px; }
+      .folder-icon { width: 42px; height: 36px; }
     }
 
     @media (min-width: 680px) {
@@ -748,7 +783,7 @@
         <h1>몽몽의 관심사</h1>
         <div class="quick-meta">
           <span class="pill">2026년 6월</span>
-          <span class="pill">업데이트: 2026-06-01 15:28 KST</span>
+          <span class="pill">업데이트: 2026-06-01 16:26 KST</span>
         </div>
       </div>
     </section>
@@ -816,7 +851,7 @@
   <div class="item-main">
     <div class="meta"><span class="label paper">논문</span><span>arXiv</span><time datetime="2026-05-26">2026-05-26</time></div>
     <h3>Granulation signatures as seen by Kepler short-cadence data. II. A hierarchical route to inferring stellar radii from granulation</h3>
-    <p>초록 핵심: Stellar granulation arises from near-surface convection and is imprinted in stellar photometric time series, yet links between granulation observables and fundamental stellar properties remain underexploited. We aim to establish a statistically robust framework for inferring stellar radii directly from granulation signals in long-duration space-based photometry, aided by atmospheric parameters. 한국어 정리: 이 논문은 별, 반지름, 천문학 분야와 관련된 최근 연구이며, 자세한 방법과 결과는 원문 초록과 본문에서 확인하는 방식이 좋습니다.</p>
+    <p>Abstract: Stellar granulation arises from near-surface convection and is imprinted in stellar photometric time series, yet links between granulation observables and fundamental stellar properties remain underexploited. We aim to establish a statistically robust framework for inferring stellar radii directly from granulation signals in long-duration space-based photometry, aided by atmospheric parameters. We construct a Bayesian hierarchical model to connect stellar radius and granulation, relating radius through regression to the total granulation amplitude, primary characteristic frequency of the granulation, stellar effective temperature, and surface metallicity. The derivation is performed separately for three granulation models, propagating the marginal posteriors of the granulation parameters to account for intrinsic dispersion of the derived relations. Each background model yields a unique radius posterior, subsequently combined using Bayesian evidences as weights, producing posteriors that best represent the given star. The granulation-radius relations were derived from a heterogeneous sample of 363 stars, combining seismic and interferometric targets from multiple sources. Applicatio</p>
   </div>
   <div class="item-side">
     <div class="tags"><span class="tag">#별</span><span class="tag">#반지름</span><span class="tag">#천문학</span></div>
@@ -832,7 +867,7 @@
   <div class="item-main">
     <div class="meta"><span class="label paper">논문</span><span>arXiv</span><time datetime="2026-05-22">2026-05-22</time></div>
     <h3>Nature of HD 251108: an RS CVn binary with a long-term evolving spot</h3>
-    <p>초록 핵심: Recently, the Lobster Eye Imager for Astronomy (LEIA) detected the longest-lasting and most energetic stellar X-ray flare event from HD 251108. In this work, we re-determined the atmospheric parameters of HD 251108 using three spectroscopic observations obtained with the 2.4 m Lijiang Telescope. 한국어 정리: 이 논문은 별, 망원경, 분광 분야와 관련된 최근 연구이며, 자세한 방법과 결과는 원문 초록과 본문에서 확인하는 방식이 좋습니다.</p>
+    <p>Abstract: Recently, the Lobster Eye Imager for Astronomy (LEIA) detected the longest-lasting and most energetic stellar X-ray flare event from HD 251108. In this work, we re-determined the atmospheric parameters of HD 251108 using three spectroscopic observations obtained with the 2.4 m Lijiang Telescope. Combined with the stellar radius derived from spectral energy distribution fitting, we found that HD 251108 contains a K-type giant with a mass of approximately 1.3 $M_{\odot}$. Long-term photometric monitoring over 12 years reveals a modulation suggestive of a stellar activity cycle, but inconclusive given the limited time span to date. Light curve fitting indicates that the variations in both amplitude and shape are primarily driven by the evolution of a large spot. The fitting further indicates that the spot migrated from low latitudes toward the pole between 2014 and 2020, and began to recede from the pole after 2022. Using spot parameters from light curve fitting, we found that the observed radial velocity variations arise from both the spot-induced distortions and the Keplerian orbital motion of the giant star. Additionally, we detect a possible M-dwarf companion with a mass of approx</p>
   </div>
   <div class="item-side">
     <div class="tags"><span class="tag">#별</span><span class="tag">#망원경</span><span class="tag">#분광</span></div>
@@ -876,7 +911,7 @@
   <div class="item-main">
     <div class="meta"><span class="label latest">최신 논문</span><span>arXiv</span><time datetime="2026-05-29">2026-05-29</time></div>
     <h3>Gravitational Waves from hybrid defects as probe of Flavor symmetry breaking: Machine-Learning Approach</h3>
-    <p>초록 핵심: We present a novel possibility that a network of domain walls bounded by cosmic strings generates a stochastic gravitational wave background (SWGB) signal originating from the spontaneous breaking of a gauged $U(1)_F$ flavor symmetry and the subsequent breaking of discrete $Z_2$ symmetry that accommodates dark matter. The gravitational wave (GW) spectrum produced by the string-bounded-wall network can be detected for high $U(1)_F$ breaking scales in forthcoming GW detectors including LISA, ET and SKA. 한국어 정리: 이 논문은 중력파, 분광, 천문학 분야와 관련된 최근 연구이며, 자세한 방법과 결과는 원문 초록과 본문에서 확인하는 방식이 좋습니다.</p>
+    <p>Abstract: We present a novel possibility that a network of domain walls bounded by cosmic strings generates a stochastic gravitational wave background (SWGB) signal originating from the spontaneous breaking of a gauged $U(1)_F$ flavor symmetry and the subsequent breaking of discrete $Z_2$ symmetry that accommodates dark matter. The gravitational wave (GW) spectrum produced by the string-bounded-wall network can be detected for high $U(1)_F$ breaking scales in forthcoming GW detectors including LISA, ET and SKA. The GW signal exhibits a distinctive frequency slope, in the infrared, compared to the standard cosmic-string case, in the frequency range between micro-hertz and hertz. We develop a possible strategy to distinguish and characterize GW spectrum of the hybrid defect from from other defects, such as stable cosmic strings, via employing the exact calculation with a machine-learning surrogate, based on a multilayer perceptron (MLP), trained on spectra obtained from the full numerical treatment. This is then used for rapid inference in the detector-specific signal-to-noise ratio (SNR) computation which also makes the process fast and efficient. We also discuss some possible complementarity</p>
   </div>
   <div class="item-side">
     <div class="tags"><span class="tag">#중력파</span><span class="tag">#분광</span><span class="tag">#천문학</span></div>
@@ -948,24 +983,26 @@
             "title": "Granulation signatures as seen by Kepler short-cadence data. II. A hierarchical route to inferring stellar radii from granulation",
             "meta": "arXiv · 2026-05-26 · 논문",
             "summary": [
-                  "분야 키워드: 별, 반지름, 천문학",
-                  "아래 내용은 자동 번역·AI 요약이 아니라 arXiv 초록에서 가져온 핵심 문장 기반 정리입니다.",
-                  "초록 문장 1: Stellar granulation arises from near-surface convection and is imprinted in stellar photometric time series, yet links between granulation observables and fundamental stellar properties remain underexploited.",
-                  "초록 문장 2: We aim to establish a statistically robust framework for inferring stellar radii directly from granulation signals in long-duration space-based photometry, aided by atmospheric parameters.",
-                  "초록 문장 3: We construct a Bayesian hierarchical model to connect stellar radius and granulation, relating radius through regression to the total granulation amplitude, primary characteristic frequency of the granulation, stellar effective temperature, and surface metallicity.",
-                  "한국어 정리: 논문의 세부 방법, 표본, 수치 결과는 원문 초록과 본문에서 확인하는 방식이 가장 정확합니다."
+                  "천체/대상: abstract에서 자동 식별되지 않음",
+                  "종류: 별",
+                  "망원경/탐사선/자료: Kepler, TESS",
+                  "관측 방법: 광도 관측, 베이즈 분석, 시계열 분석",
+                  "Abstract 핵심 문장 1: Stellar granulation arises from near-surface convection and is imprinted in stellar photometric time series, yet links between granulation observables and fundamental stellar properties remain underexploited.",
+                  "Abstract 핵심 문장 2: We aim to establish a statistically robust framework for inferring stellar radii directly from granulation signals in long-duration space-based photometry, aided by atmospheric parameters.",
+                  "Abstract 핵심 문장 3: We construct a Bayesian hierarchical model to connect stellar radius and granulation, relating radius through regression to the total granulation amplitude, primary characteristic frequency of the granulation, stellar effective temperature, and surface metallicity."
             ]
       },
       "arxiv-org-abs-2605-23423v2": {
             "title": "Nature of HD 251108: an RS CVn binary with a long-term evolving spot",
             "meta": "arXiv · 2026-05-22 · 논문",
             "summary": [
-                  "분야 키워드: 별, 망원경, 분광",
-                  "아래 내용은 자동 번역·AI 요약이 아니라 arXiv 초록에서 가져온 핵심 문장 기반 정리입니다.",
-                  "초록 문장 1: Recently, the Lobster Eye Imager for Astronomy (LEIA) detected the longest-lasting and most energetic stellar X-ray flare event from HD 251108.",
-                  "초록 문장 2: In this work, we re-determined the atmospheric parameters of HD 251108 using three spectroscopic observations obtained with the 2.4 m Lijiang Telescope.",
-                  "초록 문장 3: Combined with the stellar radius derived from spectral energy distribution fitting, we found that HD 251108 contains a K-type giant with a mass of approximately 1.3 $M_{\odot}$.",
-                  "한국어 정리: 논문의 세부 방법, 표본, 수치 결과는 원문 초록과 본문에서 확인하는 방식이 가장 정확합니다."
+                  "천체/대상: HD 251108",
+                  "종류: 별",
+                  "망원경/탐사선/자료: LEIA, Lijiang Telescope",
+                  "관측 방법: 분광 관측, 광도 관측, 시선속도법, X선 관측",
+                  "Abstract 핵심 문장 1: Recently, the Lobster Eye Imager for Astronomy (LEIA) detected the longest-lasting and most energetic stellar X-ray flare event from HD 251108.",
+                  "Abstract 핵심 문장 2: In this work, we re-determined the atmospheric parameters of HD 251108 using three spectroscopic observations obtained with the 2.4 m Lijiang Telescope.",
+                  "Abstract 핵심 문장 3: Combined with the stellar radius derived from spectral energy distribution fitting, we found that HD 251108 contains a K-type giant with a mass of approximately 1.3 $M_{\odot}$."
             ]
       },
       "www-nasa-gov-blogs-spacestation-2026-05-29-blood-clott": {
@@ -981,12 +1018,13 @@
             "title": "Gravitational Waves from hybrid defects as probe of Flavor symmetry breaking: Machine-Learning Approach",
             "meta": "arXiv · 2026-05-29 · 최신 논문",
             "summary": [
-                  "분야 키워드: 중력파, 분광, 천문학",
-                  "아래 내용은 자동 번역·AI 요약이 아니라 arXiv 초록에서 가져온 핵심 문장 기반 정리입니다.",
-                  "초록 문장 1: We present a novel possibility that a network of domain walls bounded by cosmic strings generates a stochastic gravitational wave background (SWGB) signal originating from the spontaneous breaking of a gauged $U(1)_F$ flavor symmetry and the subsequent breaking of discrete $Z_2$ symmetry that accommodates dark matter.",
-                  "초록 문장 2: The gravitational wave (GW) spectrum produced by the string-bounded-wall network can be detected for high $U(1)_F$ breaking scales in forthcoming GW detectors including LISA, ET and SKA.",
-                  "초록 문장 3: The GW signal exhibits a distinctive frequency slope, in the infrared, compared to the standard cosmic-string case, in the frequency range between micro-hertz and hertz.",
-                  "한국어 정리: 논문의 세부 방법, 표본, 수치 결과는 원문 초록과 본문에서 확인하는 방식이 가장 정확합니다."
+                  "천체/대상: abstract에서 자동 식별되지 않음",
+                  "종류: abstract에서 자동 식별되지 않음",
+                  "망원경/탐사선/자료: LISA, SKA",
+                  "관측 방법: 적외선 관측, 중력파 분석",
+                  "Abstract 핵심 문장 1: We present a novel possibility that a network of domain walls bounded by cosmic strings generates a stochastic gravitational wave background (SWGB) signal originating from the spontaneous breaking of a gauged $U(1)_F$ flavor symmetry and the subsequent breaking of discrete $Z_2$ symmetry that accommodates dark matter.",
+                  "Abstract 핵심 문장 2: The gravitational wave (GW) spectrum produced by the string-bounded-wall network can be detected for high $U(1)_F$ breaking scales in forthcoming GW detectors including LISA, ET and SKA.",
+                  "Abstract 핵심 문장 3: The GW signal exhibits a distinctive frequency slope, in the infrared, compared to the standard cosmic-string case, in the frequency range between micro-hertz and hertz."
             ]
       }
 };
@@ -1096,8 +1134,17 @@
       archiveMonths.innerHTML = monthNames.map((name, index) => {
         const month = index + 1;
         const count = Array.from(likedItems.values()).filter((record) => record.month === month).length;
-        return `<button type="button" class="month-tab" data-month="${month}" aria-selected="${month === selectedArchiveMonth}">${name} ${count}</button>`;
+        const icon = folderIcon(count);
+        const hasFiles = count > 0 ? " has-files" : "";
+        return `<button type="button" class="month-tab${hasFiles}" data-month="${month}" aria-selected="${month === selectedArchiveMonth}" aria-label="${name} 보관함"><img class="folder-icon" src="${icon}" alt=""><span class="month-label">${name}</span></button>`;
       }).join("");
+    }
+
+    function folderIcon(count) {
+      if (count === 0) return "assets/folder-empty.png";
+      if (count <= 5) return "assets/folder-low.png";
+      if (count <= 10) return "assets/folder-mid.png";
+      return "assets/folder-full.png";
     }
 
     function attachItemButtons(item) {
