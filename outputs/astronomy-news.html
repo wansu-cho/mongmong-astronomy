@@ -442,6 +442,31 @@
       font-weight: 650;
     }
 
+    .archive-months {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .month-tab {
+      min-height: 38px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .92);
+      color: var(--muted);
+      cursor: pointer;
+      font: inherit;
+      font-size: .86rem;
+      font-weight: 950;
+    }
+
+    .month-tab[aria-selected="true"] {
+      background: var(--ink);
+      color: #fff;
+      border-color: var(--ink);
+    }
+
     .modal {
       position: fixed;
       inset: 0;
@@ -664,6 +689,7 @@
       .detail-button { width: 100%; justify-content: center; }
       .like-button { width: 100%; }
       .mini-stats { grid-template-columns: 1fr; }
+      .archive-months { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     }
 
     @media (min-width: 680px) {
@@ -869,10 +895,11 @@
           <div>
             <div class="kicker">Archive</div>
             <h2>보관함</h2>
-            <p>좋아요를 누른 뉴스와 논문을 모아둡니다.</p>
+            <p>좋아요를 누른 시점의 월별로 뉴스와 논문을 모아둡니다.</p>
           </div>
         </div>
 
+        <div class="archive-months" id="archive-months" aria-label="보관함 월 선택"></div>
         <div class="feed" id="archive-feed">
           <p class="archive-empty">아직 보관한 뉴스나 논문이 없습니다.</p>
         </div>
@@ -1017,6 +1044,8 @@
       latest: document.querySelector("#latest"),
       archive: document.querySelector("#archive")
     };
+    const monthNames = ["1월", "2월", "3월", "4월", "5월", "6월", "7월", "8월", "9월", "10월", "11월", "12월"];
+    const archiveMonths = document.querySelector("#archive-months");
     const archiveFeed = document.querySelector("#archive-feed");
     const archiveEmpty = document.querySelector(".archive-empty");
     const itemState = new Map(
@@ -1029,19 +1058,57 @@
         }
       ])
     );
-    let likedItems = new Set();
+    let likedItems = new Map();
+    let selectedArchiveMonth = new Date().getMonth() + 1;
 
     function likedKey() {
       return `mongmongLikedItems:${activeProfile}`;
     }
 
     function loadLikedItems() {
-      likedItems = activeProfile ? new Set(JSON.parse(localStorage.getItem(likedKey()) || "[]")) : new Set();
+      likedItems = new Map();
+      if (!activeProfile) return;
+      const raw = JSON.parse(localStorage.getItem(likedKey()) || "[]");
+      if (Array.isArray(raw)) {
+        raw.forEach((id) => likedItems.set(id, { month: selectedArchiveMonth, savedAt: new Date().toISOString(), html: "" }));
+        saveLikedItems();
+        return;
+      }
+      Object.entries(raw).forEach(([id, record]) => {
+        likedItems.set(id, {
+          month: Number(record.month) || selectedArchiveMonth,
+          savedAt: record.savedAt || new Date().toISOString(),
+          html: record.html || ""
+        });
+      });
     }
 
     function saveLikedItems() {
       if (!activeProfile) return;
-      localStorage.setItem(likedKey(), JSON.stringify(Array.from(likedItems)));
+      localStorage.setItem(likedKey(), JSON.stringify(Object.fromEntries(likedItems)));
+    }
+
+    function currentArchiveMonth() {
+      return new Date().getMonth() + 1;
+    }
+
+    function renderArchiveMonths() {
+      archiveMonths.innerHTML = monthNames.map((name, index) => {
+        const month = index + 1;
+        const count = Array.from(likedItems.values()).filter((record) => record.month === month).length;
+        return `<button type="button" class="month-tab" data-month="${month}" aria-selected="${month === selectedArchiveMonth}">${name} ${count}</button>`;
+      }).join("");
+    }
+
+    function attachItemButtons(item) {
+      const button = item.querySelector(".like-button");
+      if (button) {
+        button.addEventListener("click", () => toggleLike(item));
+      }
+      const detailButton = item.querySelector(".detail-button");
+      if (detailButton && item.classList.contains("archived-copy")) {
+        detailButton.addEventListener("click", () => openDetail(detailButton.dataset.detail));
+      }
     }
 
     function showProfileGate() {
@@ -1097,7 +1164,7 @@
     profileChange.addEventListener("click", () => {
       localStorage.removeItem("mongmongActiveProfile");
       activeProfile = "";
-      likedItems = new Set();
+      likedItems = new Map();
       syncArchive();
       showProfileGate();
     });
@@ -1111,12 +1178,15 @@
     }
 
     function syncArchive() {
+      renderArchiveMonths();
+      archiveFeed.querySelectorAll(".archived-copy").forEach((item) => item.remove());
       Array.from(itemState.values())
         .sort((a, b) => a.originIndex - b.originIndex)
         .forEach(({ item, originFeed }) => {
-          const liked = likedItems.has(item.dataset.itemId);
+          const record = likedItems.get(item.dataset.itemId);
+          const liked = Boolean(record);
           setLikeButtonState(item, liked);
-          if (liked) {
+          if (liked && record.month === selectedArchiveMonth) {
             archiveFeed.appendChild(item);
           } else {
             const originItems = Array.from(originFeed.querySelectorAll(".item[data-item-id]"));
@@ -1126,25 +1196,53 @@
             originFeed.insertBefore(item, nextItem || null);
           }
         });
-      archiveEmpty.hidden = likedItems.size > 0;
+      likedItems.forEach((record, id) => {
+        if (record.month !== selectedArchiveMonth || itemState.has(id) || !record.html) return;
+        const template = document.createElement("template");
+        template.innerHTML = record.html.trim();
+        const copy = template.content.querySelector(".item");
+        if (!copy) return;
+        copy.classList.add("archived-copy");
+        copy.dataset.itemId = id;
+        copy.dataset.originView = "archive";
+        setLikeButtonState(copy, true);
+        attachItemButtons(copy);
+        archiveFeed.appendChild(copy);
+      });
+      const selectedCount = Array.from(likedItems.values()).filter((record) => record.month === selectedArchiveMonth).length;
+      archiveEmpty.textContent = `${monthNames[selectedArchiveMonth - 1]} 보관함에 저장된 뉴스나 논문이 없습니다.`;
+      archiveEmpty.hidden = selectedCount > 0;
       if (!archiveFeed.contains(archiveEmpty)) {
         archiveFeed.prepend(archiveEmpty);
       }
     }
 
+    function toggleLike(item) {
+      const id = item.dataset.itemId;
+      if (likedItems.has(id)) {
+        likedItems.delete(id);
+      } else {
+        selectedArchiveMonth = currentArchiveMonth();
+        likedItems.set(id, {
+          month: selectedArchiveMonth,
+          savedAt: new Date().toISOString(),
+          html: item.outerHTML
+        });
+        setView("archive");
+      }
+      saveLikedItems();
+      syncArchive();
+    }
+
     document.querySelectorAll(".like-button").forEach((button) => {
-      button.addEventListener("click", () => {
-        const item = button.closest(".item[data-item-id]");
-        const id = item.dataset.itemId;
-        if (likedItems.has(id)) {
-          likedItems.delete(id);
-        } else {
-          likedItems.add(id);
-          setView("archive");
-        }
-        saveLikedItems();
-        syncArchive();
-      });
+      attachItemButtons(button.closest(".item[data-item-id]"));
+    });
+
+    archiveMonths.addEventListener("click", (event) => {
+      const button = event.target.closest(".month-tab");
+      if (!button) return;
+      selectedArchiveMonth = Number(button.dataset.month);
+      syncArchive();
     });
 
     function setView(view) {

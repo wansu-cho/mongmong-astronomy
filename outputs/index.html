@@ -1100,10 +1100,15 @@
       }).join("");
     }
 
-    function attachLikeButton(item) {
+    function attachItemButtons(item) {
       const button = item.querySelector(".like-button");
-      if (!button) return;
-      button.addEventListener("click", () => toggleLike(item));
+      if (button) {
+        button.addEventListener("click", () => toggleLike(item));
+      }
+      const detailButton = item.querySelector(".detail-button");
+      if (detailButton && item.classList.contains("archived-copy")) {
+        detailButton.addEventListener("click", () => openDetail(detailButton.dataset.detail));
+      }
     }
 
     function showProfileGate() {
@@ -1201,7 +1206,7 @@
         copy.dataset.itemId = id;
         copy.dataset.originView = "archive";
         setLikeButtonState(copy, true);
-        attachLikeButton(copy);
+        attachItemButtons(copy);
         archiveFeed.appendChild(copy);
       });
       const selectedCount = Array.from(likedItems.values()).filter((record) => record.month === selectedArchiveMonth).length;
@@ -1230,7 +1235,7 @@
     }
 
     document.querySelectorAll(".like-button").forEach((button) => {
-      attachLikeButton(button.closest(".item[data-item-id]"));
+      attachItemButtons(button.closest(".item[data-item-id]"));
     });
 
     archiveMonths.addEventListener("click", (event) => {
