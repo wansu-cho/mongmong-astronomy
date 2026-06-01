@@ -161,15 +161,36 @@ def sentence_summary(text: str, max_sentences: int = 3) -> str:
     return " ".join(picked)[:520].strip()
 
 
+def abstract_sentences(text: str, count: int = 2) -> list[str]:
+    text = strip_html(text)
+    if not text:
+        return []
+    parts = [part.strip() for part in re.split(r"(?<=[.!?])\s+", text) if part.strip()]
+    return [part[:360].strip() for part in parts[:count]]
+
+
+def topic_text(tags: list[str]) -> str:
+    if not tags:
+        return "천문학"
+    if len(tags) == 1:
+        return tags[0]
+    return ", ".join(tags[:3])
+
+
 def korean_summary(title: str, source_text: str, tags: list[str], kind: str) -> str:
-    tag_text = "·".join(tags[:2]) if tags else "천문학"
-    topic_phrase = f"{tag_text} 관련"
+    tag_text = topic_text(tags)
     source_text = strip_html(source_text)
     if "논문" in kind:
+        abstract = abstract_sentences(source_text, 2)
+        abstract_part = " ".join(abstract)
+        if abstract_part:
+            return (
+                f"초록 핵심: {abstract_part} "
+                f"한국어 정리: 이 논문은 {tag_text} 분야와 관련된 최근 연구이며, 자세한 방법과 결과는 원문 초록과 본문에서 확인하는 방식이 좋습니다."
+            )[:760]
         return (
-            f"이 논문은 '{title}'를 중심으로 {topic_phrase} 천문 현상을 다룹니다. "
-            "초록에서 제시한 관측 자료와 분석 방법을 바탕으로 핵심 결과를 확인할 수 있습니다. "
-            "원문에서는 연구 배경, 자료 처리, 결론을 더 자세히 볼 수 있습니다."
+            f"이 논문은 '{title}'를 중심으로 {tag_text} 분야를 다룹니다. "
+            "자동 갱신에서 초록을 충분히 가져오지 못해 원문 링크에서 내용을 직접 확인하는 편이 안전합니다."
         )
     if source_text:
         return (
@@ -181,7 +202,16 @@ def korean_summary(title: str, source_text: str, tags: list[str], kind: str) -> 
 
 
 def korean_detail(title: str, source_text: str, tags: list[str], kind: str) -> list[str]:
-    tag_text = ", ".join(tags[:3]) if tags else "천문학"
+    tag_text = topic_text(tags)
+    abstract = abstract_sentences(source_text, 3)
+    if "논문" in kind:
+        lines = [
+            f"분야 키워드: {tag_text}",
+            "아래 내용은 자동 번역·AI 요약이 아니라 arXiv 초록에서 가져온 핵심 문장 기반 정리입니다.",
+        ]
+        lines.extend(f"초록 문장 {index + 1}: {line}" for index, line in enumerate(abstract))
+        lines.append("한국어 정리: 논문의 세부 방법, 표본, 수치 결과는 원문 초록과 본문에서 확인하는 방식이 가장 정확합니다.")
+        return lines[:6]
     excerpt = sentence_summary(source_text, 2)
     lines = [
         f"제목 기준으로 이 항목은 {tag_text}와 직접 연결됩니다.",
@@ -189,11 +219,6 @@ def korean_detail(title: str, source_text: str, tags: list[str], kind: str) -> l
     ]
     if excerpt:
         lines.append(f"원문 핵심 문장: {excerpt}")
-    if "논문" in kind:
-        lines.extend([
-            "논문 초록은 연구 대상, 사용한 자료, 분석 방향을 요약해 줍니다.",
-            "자세한 수치, 표본, 결론은 논문 원문에서 확인하는 구조입니다.",
-        ])
     else:
         lines.extend([
             "뉴스 본문은 관측 결과나 임무의 배경을 대중적으로 정리합니다.",
