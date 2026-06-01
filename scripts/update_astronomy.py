@@ -169,6 +169,11 @@ def abstract_sentences(text: str, count: int = 2) -> list[str]:
     return [part[:360].strip() for part in parts[:count]]
 
 
+def abstract_text(text: str) -> str:
+    text = strip_html(text)
+    return text[:1200].strip() if text else "Abstract를 자동으로 가져오지 못했습니다. 원문 링크에서 초록을 확인하세요."
+
+
 def topic_text(tags: list[str]) -> str:
     if not tags:
         return "천문학"
@@ -177,21 +182,65 @@ def topic_text(tags: list[str]) -> str:
     return ", ".join(tags[:3])
 
 
+def find_targets(text: str) -> str:
+    patterns = [
+        r"\b(?:HD|HIP|HR|NGC|IC|M|Messier|Wolf|TOI|KIC|TIC|Kepler|Gaia|WISE|WASP|TRAPPIST|Proxima|Betelgeuse|Sirius)\s?[-A-Za-z0-9+.]*\b",
+        r"\b[A-Z][a-z]+(?:\s[A-Z][a-z]+)?\s(?:b|c|d)\b",
+    ]
+    found: list[str] = []
+    blocked = {"Kepler", "TESS", "Gaia", "Hubble", "Chandra", "JWST", "Keplerian", "MLP", "Machine-Learning", "Learning", "Approach", "M-dwarf"}
+    for pattern in patterns:
+        for match in re.findall(pattern, text):
+            name = match.strip()
+            if "cadence" in name.lower():
+                continue
+            if len(name) > 1 and name not in blocked and name not in found:
+                found.append(name)
+    return ", ".join(found[:4]) if found else "abstract에서 자동 식별되지 않음"
+
+
+def find_object_type(text: str) -> str:
+    text_l = text.lower()
+    mapping = [
+        ("exoplanet", "외계행성"), ("planet", "행성"), ("black hole", "블랙홀"),
+        ("neutron star", "중성자별"), ("white dwarf", "백색왜성"), ("star cluster", "성단"),
+        ("globular cluster", "구상성단"), ("galaxy cluster", "은하단"), ("galaxy", "은하"),
+        ("supernova", "초신성"), ("nebula", "성운"), ("comet", "혜성"),
+        ("asteroid", "소행성"), ("meteor", "유성"), ("star", "별"),
+    ]
+    found = [label for key, label in mapping if key in text_l]
+    return ", ".join(dict.fromkeys(found[:3])) if found else "abstract에서 자동 식별되지 않음"
+
+
+def find_instruments(text: str) -> str:
+    names = [
+        "Hubble", "JWST", "James Webb", "Chandra", "Spitzer", "Kepler", "TESS", "Gaia",
+        "ALMA", "VLT", "ESO", "Subaru", "Gemini", "Herschel", "Planck", "Fermi",
+        "Swift", "XMM-Newton", "LIGO", "Virgo", "LISA", "SKA", "HST", "LEIA",
+        "Lijiang Telescope", "CARMENES",
+    ]
+    found = [name for name in names if re.search(rf"\b{re.escape(name)}\b", text, re.I)]
+    return ", ".join(dict.fromkeys(found[:5])) if found else "명시적으로 확인되지 않음"
+
+
+def find_methods(text: str) -> str:
+    text_l = text.lower()
+    mapping = [
+        ("spectros", "분광 관측"), ("photometr", "광도 관측"), ("radial velocity", "시선속도법"),
+        ("transit", "통과 관측"), ("imaging", "영상 관측"), ("x-ray", "X선 관측"),
+        ("radio", "전파 관측"), ("infrared", "적외선 관측"), ("gravitational wave", "중력파 분석"),
+        ("simulation", "수치 시뮬레이션"), ("bayesian", "베이즈 분석"), ("machine learning", "머신러닝 분석"),
+        ("sed fitting", "SED 피팅"), ("time series", "시계열 분석"),
+    ]
+    found = [label for key, label in mapping if key in text_l]
+    return ", ".join(dict.fromkeys(found[:4])) if found else "명시적으로 확인되지 않음"
+
+
 def korean_summary(title: str, source_text: str, tags: list[str], kind: str) -> str:
     tag_text = topic_text(tags)
     source_text = strip_html(source_text)
     if "논문" in kind:
-        abstract = abstract_sentences(source_text, 2)
-        abstract_part = " ".join(abstract)
-        if abstract_part:
-            return (
-                f"초록 핵심: {abstract_part} "
-                f"한국어 정리: 이 논문은 {tag_text} 분야와 관련된 최근 연구이며, 자세한 방법과 결과는 원문 초록과 본문에서 확인하는 방식이 좋습니다."
-            )[:760]
-        return (
-            f"이 논문은 '{title}'를 중심으로 {tag_text} 분야를 다룹니다. "
-            "자동 갱신에서 초록을 충분히 가져오지 못해 원문 링크에서 내용을 직접 확인하는 편이 안전합니다."
-        )
+        return f"Abstract: {abstract_text(source_text)}"
     if source_text:
         return (
             f"이 소식은 '{title}'와 관련된 최근 천문학·우주과학 내용을 전합니다. "
@@ -206,12 +255,13 @@ def korean_detail(title: str, source_text: str, tags: list[str], kind: str) -> l
     abstract = abstract_sentences(source_text, 3)
     if "논문" in kind:
         lines = [
-            f"분야 키워드: {tag_text}",
-            "아래 내용은 자동 번역·AI 요약이 아니라 arXiv 초록에서 가져온 핵심 문장 기반 정리입니다.",
+            f"천체/대상: {find_targets(source_text + ' ' + title)}",
+            f"종류: {find_object_type(source_text + ' ' + title)}",
+            f"망원경/탐사선/자료: {find_instruments(source_text + ' ' + title)}",
+            f"관측 방법: {find_methods(source_text)}",
         ]
-        lines.extend(f"초록 문장 {index + 1}: {line}" for index, line in enumerate(abstract))
-        lines.append("한국어 정리: 논문의 세부 방법, 표본, 수치 결과는 원문 초록과 본문에서 확인하는 방식이 가장 정확합니다.")
-        return lines[:6]
+        lines.extend(f"Abstract 핵심 문장 {index + 1}: {line}" for index, line in enumerate(abstract))
+        return lines[:7]
     excerpt = sentence_summary(source_text, 2)
     lines = [
         f"제목 기준으로 이 항목은 {tag_text}와 직접 연결됩니다.",
@@ -465,7 +515,7 @@ def detail_json(items: list[Item]) -> str:
         item.item_id: {
             "title": item.title,
             "meta": f"{item.source} · {item.date} · {item.kind}",
-            "summary": item.detail[:6],
+            "summary": item.detail[:7],
         }
         for item in items
     }
