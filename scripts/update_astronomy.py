@@ -143,7 +143,42 @@ def fetch_text(url: str, timeout: int = 20) -> str:
 def strip_html(value: str) -> str:
     value = re.sub(r"<[^>]+>", " ", value or "")
     value = html.unescape(value)
+    value = re.sub(r"The post .*? appeared first on .*?\.?$", "", value).strip()
+    value = clean_latex(value)
     return re.sub(r"\s+", " ", value).strip()
+
+
+def clean_latex(value: str) -> str:
+    """Make common arXiv math snippets readable in plain HTML."""
+    value = value.replace("\\,", " ")
+    value = value.replace("\\,", " ")
+    value = re.sub(r"\$([^$]+)\$", lambda match: clean_latex_math(match.group(1)), value)
+    return clean_latex_math(value)
+
+
+def clean_latex_math(value: str) -> str:
+    replacements = {
+        r"M_{\odot}": "태양질량",
+        r"M_\odot": "태양질량",
+        r"M_{\\odot}": "태양질량",
+        r"M_{\rm \odot}": "태양질량",
+        r"\odot": "태양",
+        r"\mathrm": "",
+        r"\rm": "",
+        r"\approx": "약",
+        r"\sim": "~",
+        r"\times": "×",
+        r"\cdot": "·",
+        r"\mu": "μ",
+    }
+    for src, dst in replacements.items():
+        value = value.replace(src, dst)
+    value = re.sub(r"\{([^{}]+)\}", r"\1", value)
+    value = value.replace("M_태양", "태양질량")
+    value = re.sub(r"_([0-9])", lambda match: "₀₁₂₃₄₅₆₇₈₉"[int(match.group(1))], value)
+    value = re.sub(r"\^([0-9])", lambda match: "⁰¹²³⁴⁵⁶⁷⁸⁹"[int(match.group(1))], value)
+    value = value.replace("\\", "")
+    return value
 
 
 def clean_id(value: str) -> str:
@@ -242,11 +277,7 @@ def korean_summary(title: str, source_text: str, tags: list[str], kind: str) -> 
     if "논문" in kind:
         return f"Abstract: {abstract_text(source_text)}"
     if source_text:
-        return (
-            f"이 소식은 '{title}'와 관련된 최근 천문학·우주과학 내용을 전합니다. "
-            f"핵심 주제는 {tag_text}이고, 원문 설명을 통해 관측 대상이나 임무의 의미를 확인할 수 있습니다. "
-            "자세한 배경과 기관의 공식 설명은 원문에서 이어서 볼 수 있습니다."
-        )
+        return f"원문 요약: {sentence_summary(source_text, 3)}"
     return f"이 항목은 '{title}'와 관련된 천문학 소식입니다. 핵심 주제는 {tag_text}입니다."
 
 
@@ -262,17 +293,17 @@ def korean_detail(title: str, source_text: str, tags: list[str], kind: str) -> l
         ]
         lines.extend(f"Abstract 핵심 문장 {index + 1}: {line}" for index, line in enumerate(abstract))
         return lines[:7]
-    excerpt = sentence_summary(source_text, 2)
+    excerpt_lines = abstract_sentences(source_text, 3)
     lines = [
-        f"제목 기준으로 이 항목은 {tag_text}와 직접 연결됩니다.",
-        "공식 원문 또는 초록에서 날짜, 링크, 출처를 확인할 수 있는 항목만 사용합니다.",
+        f"핵심 키워드: {tag_text}",
+        "아래 내용은 원문 설명에서 가져온 핵심 문장 기반 정리입니다.",
     ]
-    if excerpt:
-        lines.append(f"원문 핵심 문장: {excerpt}")
+    if excerpt_lines:
+        lines.extend(f"원문 핵심 문장 {index + 1}: {line}" for index, line in enumerate(excerpt_lines))
     else:
         lines.extend([
-            "뉴스 본문은 관측 결과나 임무의 배경을 대중적으로 정리합니다.",
-            "공식 기관 발표를 우선 사용해 링크와 날짜 추적이 가능하도록 했습니다.",
+            "원문 설명을 자동으로 충분히 가져오지 못했습니다.",
+            "제목과 링크를 기준으로 원문에서 자세한 내용을 확인하는 편이 안전합니다.",
         ])
     return lines[:6]
 
@@ -335,6 +366,8 @@ def fetch_news() -> list[Item]:
             description = strip_html(node.findtext("description") or "")
             pub_date = parse_rss_date(node.findtext("pubDate") or "")
             if not title or not url:
+                continue
+            if len(description) < 80:
                 continue
             text = f"{title} {description}".lower()
             if any(key in text for key in ["contract", "awards contract", "headquarters", "public event", "media accreditation", "administrator"]):
