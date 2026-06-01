@@ -1,0 +1,37 @@
+name: Weekly Astronomy Update
+
+on:
+  schedule:
+    # 08:00 Monday in Korea Standard Time is 23:00 Sunday in UTC.
+    - cron: "0 23 * * 0"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: weekly-astronomy-update
+  cancel-in-progress: false
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Update astronomy page
+        run: python scripts/update_astronomy.py
+
+      - name: Commit changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Update weekly astronomy curation"
+          file_pattern: outputs/index.html outputs/astronomy-news.html outputs/service-worker.js
