@@ -1,4 +1,4 @@
-const CACHE_NAME = "mongmong-astronomy-v46";
+const CACHE_NAME = "mongmong-astronomy-v47";
 const ASSETS = [
   "./",
   "./index.html",
